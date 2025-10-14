@@ -1,7 +1,7 @@
 # Semantic Version Docker Prerelease Action
 
-[![test](https://github.com/optivem/prerelease-docker-images-action/actions/workflows/test.yml/badge.svg)](https://github.com/optivem/prerelease-docker-images-action/actions/workflows/test.yml)
-[![release](https://github.com/optivem/prerelease-docker-images-action/actions/workflows/release.yml/badge.svg)](https://github.com/optivem/prerelease-docker-images-action/actions/workflows/release.yml)
+[![test](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/test.yml/badge.svg)](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/test.yml)
+[![release](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/release.yml/badge.svg)](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/release.yml)
 
 A GitHub Action that automatically generates semantic versions, retags existing Docker images, and pushes them to container registries with prerelease tags.
 
@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0  # Required for git tag operations
           
       - name: Version and tag Docker images
-        uses: optivem/prerelease-docker-images-action@v1
+        uses: optivem/generate-prerelease-version-action@v1
         with:
           image-urls: |
             # Frontend services
@@ -49,7 +49,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker images (JSON format)
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: '["ghcr.io/${{ github.repository }}/frontend:latest", "ghcr.io/${{ github.repository }}/api:latest", "ghcr.io/${{ github.repository }}/worker:latest"]'
 ```
@@ -58,7 +58,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker image
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: 'ghcr.io/${{ github.repository }}/my-app:latest'
 ```
@@ -67,7 +67,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker images
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: |
       # GHCR images with tags
@@ -87,7 +87,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker images
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: |
       docker.io/username/frontend:latest
@@ -100,7 +100,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker images
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: '["docker.io/username/frontend:latest", "docker.io/username/backend:latest"]'
     registry-token: ${{ secrets.DOCKER_TOKEN }}
@@ -111,7 +111,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker images
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: |
       myregistry.azurecr.io/team/frontend:latest
@@ -124,7 +124,7 @@ jobs:
 
 ```yaml
 - name: Version and tag Docker images
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: |
       123456789.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
@@ -157,7 +157,7 @@ jobs:
         # ... steps to get the digest from the build workflow
         
       - name: Version and tag Docker image
-        uses: optivem/prerelease-docker-images-action@v1
+        uses: optivem/generate-prerelease-version-action@v1
         with:
           image-url: 'ghcr.io/${{ github.repository }}/my-app@${{ steps.get-digest.outputs.digest }}'
           prerelease-suffix: 'rc'
@@ -218,7 +218,7 @@ image-urls: '["ghcr.io/org/frontend:latest", "ghcr.io/org/api:latest", "docker.i
 ```yaml
 - name: Version and tag Docker images
   id: version
-  uses: optivem/prerelease-docker-images-action@v1
+  uses: optivem/generate-prerelease-version-action@v1
   with:
     image-urls: |
       ghcr.io/${{ github.repository }}/frontend:latest
@@ -321,7 +321,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: optivem/prerelease-docker-images-action@v1
+      - uses: optivem/generate-prerelease-version-action@v1
         with:
           image-url: 'ghcr.io/${{ github.repository }}/app@${{ needs.build.outputs.digest }}'
 ```
@@ -339,7 +339,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: optivem/prerelease-docker-images-action@v1
+      - uses: optivem/generate-prerelease-version-action@v1
         with:
           image-url: 'ghcr.io/${{ github.repository }}/${{ matrix.image }}:latest'
           prerelease-suffix: 'rc'
