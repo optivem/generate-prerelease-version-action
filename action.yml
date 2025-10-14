@@ -4,15 +4,15 @@ branding:
   icon: 'tag'
   color: 'blue'
 inputs:
-  prerelease-suffix:
+  suffix:
     description: 'Prerelease suffix (e.g., rc, alpha, beta)'
     required: false
     default: 'rc'
 
 outputs:
-  prerelease-version:
+  version:
     description: 'The prerelease version (e.g., v1.2.3-rc)'
-    value: ${{ steps.generate.outputs.prerelease-version }}
+    value: ${{ steps.generate.outputs.version }}
 
 runs:
   using: 'composite'
@@ -23,4 +23,4 @@ runs:
       shell: pwsh
       run: |
         & "${{ github.action_path }}/action.ps1" `
-          -PrereleaseSuffix '${{ inputs.prerelease-suffix }}'
+          -PrereleaseSuffix '${{ inputs.suffix }}'

@@ -1,72 +1,140 @@
-param(param(
-
-    [string]$PrereleaseSuffix = "rc",    [string]$ImageUrls,
-
-    [string]$GitHubOutput = $env:GITHUB_OUTPUT    [string]$RegistryToken,
-
-)    [string]$RegistryUsername,
+param(param(param(
 
     [string]$PrereleaseSuffix = "rc",
 
-Write-Host "🏷️ Generating semantic prerelease version..."    [string]$GitHubOutput = $env:GITHUB_OUTPUT
+    [string]$GitHubOutput = $env:GITHUB_OUTPUT    [string]$PrereleaseSuffix = "rc",    [string]$ImageUrls,
 
-Write-Host "")
+)
+
+    [string]$GitHubOutput = $env:GITHUB_OUTPUT    [string]$RegistryToken,
+
+Write-Host "🏷️ Generating semantic prerelease version..."
+
+Write-Host "")    [string]$RegistryUsername,
 
 Write-Host "📋 Input Parameters:"
 
-Write-Host "   Prerelease Suffix: $PrereleaseSuffix"Write-Host "🏷️ Generating semantic version for Docker images..."
+Write-Host "   Prerelease Suffix: $PrereleaseSuffix"    [string]$PrereleaseSuffix = "rc",
 
-Write-Host "   GitHub Output File: $GitHubOutput"Write-Host ""
+Write-Host "   GitHub Output File: $GitHubOutput"
+
+Write-Host ""Write-Host "🏷️ Generating semantic prerelease version..."    [string]$GitHubOutput = $env:GITHUB_OUTPUT
+
+
+
+# Get the latest semantic version tag (including prerelease tags)Write-Host "")
+
+Write-Host "📋 Finding latest semantic version tag..."
+
+$latestTag = & git tag -l "v*.*.*" --sort=-version:refname | Select-Object -First 1Write-Host "📋 Input Parameters:"
+
+
+
+if ([string]::IsNullOrEmpty($latestTag)) {Write-Host "   Prerelease Suffix: $PrereleaseSuffix"Write-Host "🏷️ Generating semantic version for Docker images..."
+
+    Write-Host "🆕 No existing semantic version tags found, starting with v0.0.0"
+
+    $latestTag = "v0.0.0"Write-Host "   GitHub Output File: $GitHubOutput"Write-Host ""
+
+}
 
 Write-Host ""Write-Host "📋 Input Parameters:"
 
+Write-Host "📌 Latest tag: $latestTag"
+
 Write-Host "   Image URLs: $ImageUrls"
-
-# Get the latest semantic version tag (including prerelease tags)Write-Host "   Prerelease Suffix: $PrereleaseSuffix"
-
-Write-Host "📋 Finding latest semantic version tag..."Write-Host "   GitHub Output File: $GitHubOutput"
-
-$latestTag = & git tag -l "v*.*.*" --sort=-version:refname | Select-Object -First 1Write-Host ""
-
-Write-Host "🔍 Debug - Image URLs Analysis:"
-
-if ([string]::IsNullOrEmpty($latestTag)) {Write-Host "   Type: $($ImageUrls.GetType().Name)"
-
-    Write-Host "🆕 No existing semantic version tags found, starting with v0.0.0"Write-Host "   Length: $($ImageUrls.Length)"
-
-    $latestTag = "v0.0.0"Write-Host "   Raw Value: '$ImageUrls'"
-
-}Write-Host "   Contains newlines: $(if ($ImageUrls.Contains("`n")) { 'Yes' } else { 'No' })"
-
-Write-Host "   Contains carriage returns: $(if ($ImageUrls.Contains("`r")) { 'Yes' } else { 'No' })"
-
-Write-Host "📌 Latest tag: $latestTag"Write-Host ""
-
-Write-Host "Image URLs:"
 
 # Parse current version - handle both stable and prerelease tags
 
-$versionPart = $latestTag -replace "v", ""# Parse image URLs - support both newline-separated and JSON array formats
+$versionPart = $latestTag -replace "v", ""# Get the latest semantic version tag (including prerelease tags)Write-Host "   Prerelease Suffix: $PrereleaseSuffix"
 
-$imageUrlList = @()
 
-# Check if it's a prerelease tag (contains hyphen)
 
-if ($versionPart -match "^(\d+)\.(\d+)\.(\d+)(-.*)?$") {# Try to parse as JSON first
+# Check if it's a prerelease tag (contains hyphen)Write-Host "📋 Finding latest semantic version tag..."Write-Host "   GitHub Output File: $GitHubOutput"
 
-    $currentMajor = [int]$matches[1]$trimmedInput = $ImageUrls.Trim()
+if ($versionPart -match "^(\d+)\.(\d+)\.(\d+)(-.*)?$") {
 
-    $currentMinor = [int]$matches[2]if ($trimmedInput.StartsWith('[') -and $trimmedInput.EndsWith(']')) {
+    $currentMajor = [int]$matches[1]$latestTag = & git tag -l "v*.*.*" --sort=-version:refname | Select-Object -First 1Write-Host ""
 
-    $currentPatch = [int]$matches[3]    try {
+    $currentMinor = [int]$matches[2]
 
-    $prereleaseInfo = $matches[4]        Write-Host "📋 Detected JSON array format"
+    $currentPatch = [int]$matches[3]Write-Host "🔍 Debug - Image URLs Analysis:"
 
-            $jsonArray = $ImageUrls | ConvertFrom-Json
+    $prereleaseInfo = $matches[4]
 
-    if ($prereleaseInfo) {        # Always treat as array (PowerShell returns single string for 1-item JSON arrays)
+    if ([string]::IsNullOrEmpty($latestTag)) {Write-Host "   Type: $($ImageUrls.GetType().Name)"
 
-        Write-Host "📊 Current version: $currentMajor.$currentMinor.$currentPatch (prerelease: $prereleaseInfo)"        $imageUrlList = @($jsonArray) | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.Trim() }
+    if ($prereleaseInfo) {
+
+        Write-Host "📊 Current version: $currentMajor.$currentMinor.$currentPatch (prerelease: $prereleaseInfo)"    Write-Host "🆕 No existing semantic version tags found, starting with v0.0.0"Write-Host "   Length: $($ImageUrls.Length)"
+
+    } else {
+
+        Write-Host "📊 Current version: $currentMajor.$currentMinor.$currentPatch (stable)"    $latestTag = "v0.0.0"Write-Host "   Raw Value: '$ImageUrls'"
+
+    }
+
+} else {}Write-Host "   Contains newlines: $(if ($ImageUrls.Contains("`n")) { 'Yes' } else { 'No' })"
+
+    Write-Error "❌ Invalid semantic version format: $latestTag. Expected format: v1.2.3 or v1.2.3-suffix"
+
+    exit 1Write-Host "   Contains carriage returns: $(if ($ImageUrls.Contains("`r")) { 'Yes' } else { 'No' })"
+
+}
+
+Write-Host "📌 Latest tag: $latestTag"Write-Host ""
+
+# Always increment patch version
+
+$newMajor = $currentMajorWrite-Host "Image URLs:"
+
+$newMinor = $currentMinor
+
+$newPatch = $currentPatch + 1# Parse current version - handle both stable and prerelease tags
+
+
+
+Write-Host "🐛 Patch version bump: $currentMajor.$currentMinor.$currentPatch -> $newMajor.$newMinor.$newPatch"$versionPart = $latestTag -replace "v", ""# Parse image URLs - support both newline-separated and JSON array formats
+
+
+
+# Generate version strings$imageUrlList = @()
+
+$nextVersion = "v$newMajor.$newMinor.$newPatch"
+
+$prereleaseVersion = "$nextVersion-$PrereleaseSuffix"# Check if it's a prerelease tag (contains hyphen)
+
+
+
+Write-Host "📦 Generated versions:"if ($versionPart -match "^(\d+)\.(\d+)\.(\d+)(-.*)?$") {# Try to parse as JSON first
+
+Write-Host "   Next release: $nextVersion"
+
+Write-Host "   Prerelease: $prereleaseVersion"     $currentMajor = [int]$matches[1]$trimmedInput = $ImageUrls.Trim()
+
+
+
+# Output the version    $currentMinor = [int]$matches[2]if ($trimmedInput.StartsWith('[') -and $trimmedInput.EndsWith(']')) {
+
+if ($GitHubOutput) {
+
+    Add-Content -Path $GitHubOutput -Value "version=$prereleaseVersion"    $currentPatch = [int]$matches[3]    try {
+
+    Write-Host "✅ Set output 'version' to: $prereleaseVersion"
+
+} else {    $prereleaseInfo = $matches[4]        Write-Host "📋 Detected JSON array format"
+
+    Write-Host "⚠️ GITHUB_OUTPUT not set, output not written to file"
+
+}            $jsonArray = $ImageUrls | ConvertFrom-Json
+
+
+
+Write-Host ""    if ($prereleaseInfo) {        # Always treat as array (PowerShell returns single string for 1-item JSON arrays)
+
+Write-Host "🎉 Version generation completed successfully!"
+
+Write-Host "Generated prerelease version: $prereleaseVersion"        Write-Host "📊 Current version: $currentMajor.$currentMinor.$currentPatch (prerelease: $prereleaseInfo)"        $imageUrlList = @($jsonArray) | Where-Object { $_.Trim() -ne "" } | ForEach-Object { $_.Trim() }
 
     } else {    } catch {
 
