@@ -1,28 +1,9 @@
-name: 'Semantic Version Docker Prerelease'
-description: 'Generate semantic version (patch increment), retag existing Docker image, and push with prerelease tags'
+name: 'Generate Prerelease Version'
+description: 'Generate semantic version (patch increment) with prerelease suffix'
 branding:
   icon: 'tag'
   color: 'blue'
 inputs:
-  image-urls:
-    description: |
-      List of source Docker image URLs with tags or digests.
-      Supports two formats:
-      1. Newline-separated (with optional comments):
-         ghcr.io/owner/repo/service:latest
-         docker.io/username/app:v1.0.0
-         # Comment: registry.azurecr.io/team/api@sha256:abc123
-      2. JSON array:
-         ["ghcr.io/owner/repo/service:latest", "docker.io/username/app:v1.0.0"]
-    required: true
-  registry-token:
-    description: 'Token for registry authentication (GitHub token for GHCR, Docker token for Docker Hub, etc.)'
-    required: true
-    default: ${{ github.token }}
-  registry-username:
-    description: 'Username for registry authentication (github.actor for GHCR, Docker Hub username, etc.)'
-    required: false
-    default: ${{ github.actor }}
   prerelease-suffix:
     description: 'Prerelease suffix (e.g., rc, alpha, beta)'
     required: false
@@ -32,20 +13,14 @@ outputs:
   prerelease-version:
     description: 'The prerelease version (e.g., v1.2.3-rc)'
     value: ${{ steps.generate.outputs.prerelease-version }}
-  image-prerelease-urls:
-    description: 'JSON array of prerelease image URLs'
-    value: ${{ steps.generate.outputs.image-prerelease-urls }}
 
 runs:
   using: 'composite'
   steps:
         
-    - name: Generate Semantic Version and Tag Docker Image
+    - name: Generate Semantic Version
       id: generate
       shell: pwsh
       run: |
         & "${{ github.action_path }}/action.ps1" `
-          -ImageUrls '${{ inputs.image-urls }}' `
-          -RegistryToken '${{ inputs.registry-token }}' `
-          -RegistryUsername '${{ inputs.registry-username }}' `
           -PrereleaseSuffix '${{ inputs.prerelease-suffix }}'
