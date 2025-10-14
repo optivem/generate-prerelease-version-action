@@ -1,0 +1,49 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract tag name
+        id: tag
+        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create or Update Release
+        run: |
+          # Try to create release, if it exists, update it
+          gh release create ${{ steps.tag.outputs.tag_name }} \
+            --title "Release ${{ steps.tag.outputs.tag_name }}" \
+            --notes "## Changes in this Release
+            
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+            
+            ## Usage
+            
+            \`\`\`yaml
+            - uses: optivem/prerelease-docker-images-action@${{ steps.tag.outputs.tag_name }}
+              with:
+                image-url: 'ghcr.io/owner/repo/service:latest'
+            \`\`\`" || \
+          gh release edit ${{ steps.tag.outputs.tag_name }} \
+            --title "Release ${{ steps.tag.outputs.tag_name }}" \
+            --notes "## Changes in this Release
+            
+            See [CHANGELOG.md](CHANGELOG.md) for details.
+            
+            ## Usage
+            
+            \`\`\`yaml
+            - uses: optivem/prerelease-docker-images-action@${{ steps.tag.outputs.tag_name }}
+              with:
+                image-url: 'ghcr.io/owner/repo/service:latest'
+            \`\`\`"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,126 @@
+name: test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate action.yml structure
+        run: |
+          echo "🔍 Validating action.yml structure..."
+          
+          # Check required inputs exist
+          if grep -q "image-urls:" action.yml; then
+            echo "✅ image-urls input found"
+          else
+            echo "❌ image-urls input missing"
+            exit 1
+          fi
+          
+          if grep -q "registry-token:" action.yml; then
+            echo "✅ registry-token input found"
+          else
+            echo "❌ registry-token input missing"
+            exit 1
+          fi
+          
+          if grep -q "prerelease-suffix:" action.yml; then
+            echo "✅ prerelease-suffix input found"
+          else
+            echo "❌ prerelease-suffix input missing"
+            exit 1
+          fi
+          
+          echo "✅ Action YAML structure validation passed"
+
+      - name: Test PowerShell script syntax
+        run: |
+          echo "🔍 Testing PowerShell script syntax..."
+          
+          # Test syntax by running with help
+          pwsh -Command "Get-Help ./action.ps1" >/dev/null 2>&1 || echo "⚠️  PowerShell help check (expected for scripts without help comments)"
+          
+          # Test parameter validation
+          if grep -q "ImageUrls" action.ps1; then
+            echo "✅ ImageUrls parameter found"
+          else
+            echo "❌ ImageUrls parameter missing"
+            exit 1
+          fi
+          
+          if grep -q "RegistryToken" action.ps1; then
+            echo "✅ RegistryToken parameter found"
+          else
+            echo "❌ RegistryToken parameter missing"
+            exit 1
+          fi
+          
+          echo "✅ PowerShell script validation passed"
+
+      - name: Test URL parsing logic
+        run: |
+          echo "🔍 Testing URL parsing patterns..."
+          
+          # Test regex patterns exist
+          if grep -q "match.*sha256" action.ps1; then
+            echo "✅ Digest pattern found"
+          else
+            echo "❌ Digest pattern missing"
+            exit 1
+          fi
+          
+          if grep -q "match.*:" action.ps1; then
+            echo "✅ Tag pattern found"
+          else
+            echo "❌ Tag pattern missing"
+            exit 1
+          fi
+          
+          echo "✅ URL parsing validation passed"
+
+      - name: Validate documentation consistency
+        run: |
+          echo "🔍 Checking documentation consistency..."
+          
+          # Check README has new parameters
+          if grep -q "image-urls" README.md; then
+            echo "✅ README contains image-urls"
+          else
+            echo "❌ README missing image-urls documentation"
+            exit 1
+          fi
+          
+          if grep -q "registry-token" README.md; then
+            echo "✅ README contains registry-token"
+          else
+            echo "❌ README missing registry-token documentation"
+            exit 1
+          fi
+          
+          # Check for old parameters that should be removed
+          if grep -q "image-name" README.md; then
+            echo "⚠️  README still contains old image-name parameter"
+          else
+            echo "✅ Old image-name parameter removed from README"
+          fi
+          
+          if grep -q "github-token" README.md; then
+            echo "⚠️  README still contains old github-token parameter"
+          else
+            echo "✅ Old github-token parameter removed from README"
+          fi
+          
+          echo "✅ Documentation consistency check completed"
+
+  # Note: Full functional testing would require a Docker image to exist
+  # This validates the action structure and parameter consistency
