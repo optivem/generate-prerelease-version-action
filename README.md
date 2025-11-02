@@ -1,5 +1,8 @@
 # Generate Prerelease Version
 
+[![test](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/test.yml/badge.svg)](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/test.yml)
+[![release](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/release.yml/badge.svg)](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/release.yml)
+
 GitHub Action that creates semantic prerelease versions.
 
 ## Usage
