@@ -1,3 +1,6 @@
+> [!WARNING]
+> This action has moved to [optivem/actions](https://github.com/optivem/actions). Use `optivem/actions/generate-prerelease-version@v1` instead.
+
 # Generate Prerelease Version
 
 [![test](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/test.yml/badge.svg)](https://github.com/optivem/generate-prerelease-version-action/actions/workflows/test.yml)
